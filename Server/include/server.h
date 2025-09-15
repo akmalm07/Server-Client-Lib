@@ -17,10 +17,18 @@ namespace server
 
 		void set_on_connect(std::function<void()> callback);
 
+		size_t client_count() const;
+
 		void add_on_message_received(std::function<void(const std::vector<uint8_t>&)> callback);
+
+		void stop_accepting();
+
+		std::vector<uint32_t> get_all_client_ids() const;
 
 		template<typename T>
 		void send_data(size_t clientId, const T& data);
+
+		uint32_t get_last_client_sent_data() const;
 
 #ifdef SERVER_SAVE_PREV_DATA
 		std::vector<uint8_t> get_accumulated_data(size_t id);
@@ -30,6 +38,10 @@ namespace server
 
 		template<typename T>
 		void send_data_to_all(const T& data);
+
+		uint32_t get_current_client_id() const;
+
+		void disconnect_client(uint32_t clientId);
 
 		asio::ip::tcp::endpoint get_endpoint() const;
 
@@ -60,10 +72,11 @@ namespace server
 			ClientSession() = default;
 		};
 
-		std::unordered_map<size_t, ClientSession> _clients;
+		std::unordered_map<uint32_t, ClientSession> _clients;
 
+		uint32_t _lastClientSentData = 0;
 
-		size_t _nextClientId = 0; 
+		uint32_t _nextClientId = 1;
 
 		std::function<void()> _onDisconnect = nullptr;
 		std::function<void()> _onConnect = nullptr;
@@ -78,7 +91,7 @@ namespace server
 		void handle_accept(std::shared_ptr<asio::ip::tcp::socket> socket, const asio::error_code& error);
 
 		//void handle
-		void start_session(size_t id);
+		void start_session(uint32_t id);
 
 		void handle_incoming_data(const asio::error_code& error, size_t byteSizeTransferred, size_t id);
 	};

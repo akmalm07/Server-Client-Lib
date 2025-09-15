@@ -1,5 +1,9 @@
 #pragma once
 
+#include <functional>
+#include <thread>
+
+#include <asio.hpp>
 
 namespace client
 {
@@ -18,6 +22,11 @@ namespace client
 
 		Client(const std::string& host, unsigned short port, std::function<void()> onConnect = nullptr, std::function<void()> onDisonnect = nullptr);
 
+		Client(const Client&) = default;
+		Client& operator=(const Client&) = default;
+		Client(Client&&) = default;
+		Client& operator=(Client&&) = default;
+
 		ClientError connect();
 
 		void set_on_connect(std::function<void()> callback);
@@ -35,20 +44,20 @@ namespace client
 
 		std::thread _ioThread;
 		asio::io_context _ioContext;
-		
+
 		asio::ip::tcp::endpoint _endpoint;
 		asio::ip::tcp::socket _socket;
 
-		std::vector<uint8_t> _receiveBuffer; 
+		std::vector<uint8_t> _receiveBuffer;
 
 
 		std::function<void()> _onDisconnect = nullptr;
 		std::function<void()> _onConnect = nullptr;
 
-		size_t _clientId = 0;
-		
+		uint32_t _clientId = 0;
+
 		std::function<void(const std::vector<uint8_t>&)> _onMessageReceived;
-		void run(); 
+		void run();
 		void handle_receive(const asio::error_code& error, size_t bytesTransferred);
 	};
 

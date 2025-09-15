@@ -18,11 +18,11 @@ namespace server
 			size_t size = sizeof(T);
 			asio::write(*it->second.socket, asio::buffer(buffer, size));
 		}
-		catch (const asio::system_error& e) //NOTE: THERE IS A BUG WITH 
+		catch (const asio::system_error& e)
 		{
 			std::cerr << "Send failed: " << e.what() << std::endl;
-			it->second.socket->close(); 
-			_clients.erase(it); 
+			it->second.socket->close();
+			_clients.erase(it);
 		}
 	}
 
@@ -37,21 +37,17 @@ namespace server
 		}
 		try
 		{
-			uint32_t dataSize = static_cast<uint32_t>(data.size());
-			uint32_t netDataSize = htonl(dataSize); // Convert to network byte order
-			asio::write(*it->second.socket, asio::buffer(&netDataSize, sizeof(netDataSize)));
-			// Then, send the actual string data
 			asio::write(*it->second.socket, asio::buffer(data.data(), data.size()));
 		}
 		catch (const asio::system_error& e)
 		{
 			std::cerr << "Send failed: " << e.what() << std::endl;
-			it->second.socket->close(); 
-			_clients.erase(it); 
+			it->second.socket->close();
+			_clients.erase(it);
 		}
 	}
 
-	
+
 	template<typename T>
 	inline void Server::send_data_to_some(const std::vector<size_t>& clientId, const T& data)
 	{
